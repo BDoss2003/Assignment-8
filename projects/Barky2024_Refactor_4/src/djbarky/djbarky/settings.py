@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "barkyapi",
     # 3rd party
     "channels",  # Channels
     "rest_framework",  # REST API

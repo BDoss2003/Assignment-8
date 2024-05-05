@@ -1,8 +1,21 @@
+import os
+import django
+from django.conf import settings
+
+# Set the Django settings module
+os.environ['DJANGO_SETTINGS_MODULE'] = 'djbarky.settings'
+
+# Configure Django settings
+settings.configure(DEBUG=True)  # Add other settings as needed
+
+# Initialize Django application registry
+django.setup()
+
 from django.db import transaction
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import localtime
-
+import datetime as date
 from barkyapi.models import Bookmark
 from barkyarch.domain.model import DomainBookmark
 from barkyarch.services.commands import (
@@ -113,8 +126,8 @@ class TestCommands(TestCase):
             id=999,
             title="Non-existing Bookmark",
             url="http://www.nonexisting.com",
-            notes="Non-existing notes"
-        )
+            notes="Non-existing notes",
+            date_added="4/23/24"        )
 
         # Execute the command to delete a non-existing bookmark
         delete_command.execute(non_existing_bookmark)
