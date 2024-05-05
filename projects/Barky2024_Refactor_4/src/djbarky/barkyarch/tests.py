@@ -67,3 +67,58 @@ class TestCommands(TestCase):
 
         # that object is the same as the one we inserted
         self.assertEqual(Bookmark.objects.get(id=1).title, "goofy")
+    
+    # Listing Bookmarks (Default-Custom by title) 
+    def test_list_bookmarks_order_by_default(self):
+        # Instantiate ListBookmarksCommand with default order_by parameter
+        list_command = ListBookmarksCommand()
+
+        # Execute the command to list bookmarks
+        bookmarks = list_command.execute()
+
+        # Assert that the returned list is ordered by default (date_added)
+        self.assertEqual(len(bookmarks), 2)
+        self.assertEqual(bookmarks[0].title, "Bookmark 1")
+        self.assertEqual(bookmarks[1].title, "Bookmark 2")
+
+    def test_list_bookmarks_order_by_custom(self):
+        # Instantiate ListBookmarksCommand with custom order_by parameter
+        list_command = ListBookmarksCommand(order_by="title")
+
+        # Execute the command to list bookmarks ordered by title
+        bookmarks = list_command.execute()
+
+        # Assert that the returned list is ordered by title
+        self.assertEqual(len(bookmarks), 2)
+        self.assertEqual(bookmarks[0].title, "Bookmark 1")
+        self.assertEqual(bookmarks[1].title, "Bookmark 2")
+    
+    def test_delete_existing_bookmark(self):
+        # Instantiate DeleteBookmarkCommand
+        delete_command = DeleteBookmarkCommand()
+
+        # Execute the command to delete the test bookmark
+        delete_command.execute(DomainBookmark.from_entity(self.test_bookmark))
+
+        # Assert that the bookmark has been deleted from the database
+        with self.assertRaises(Bookmark.DoesNotExist):
+            Bookmark.objects.get(id=self.test_bookmark.id)
+
+    def test_delete_non_existing_bookmark(self):
+        # Instantiate DeleteBookmarkCommand
+        delete_command = DeleteBookmarkCommand()
+
+        # Create a new domain bookmark object (not existing in the database)
+        non_existing_bookmark = DomainBookmark(
+            id=999,
+            title="Non-existing Bookmark",
+            url="http://www.nonexisting.com",
+            notes="Non-existing notes"
+        )
+
+        # Execute the command to delete a non-existing bookmark
+        delete_command.execute(non_existing_bookmark)
+
+        # Assert that no bookmark has been deleted (should not raise error)
+        with self.assertRaises(Bookmark.DoesNotExist):
+            Bookmark.objects.get(id=999)  # Confirm that the bookmark with ID=999 doesn't exist
